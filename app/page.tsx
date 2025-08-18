@@ -1,8 +1,10 @@
+// app/page.tsx
 export default function Home() {
   return (
-    <main style={{padding: '2rem', fontFamily: 'sans-serif'}}>
-      <h1>Points Optimizer Prototype</h1>
-      <p>Welcome! This is the demo app. Go to <a href="/demo">/demo</a> to see seeded wallets.</p>
-    </main>
+    <div>
+      <h1>Points Optimizer</h1>
+      <p>Welcome! Head to the demo page to see example data and test actions.</p>
+      <p><a href="/demo">Go to Demo →</a></p>
+    </div>
   )
 }
