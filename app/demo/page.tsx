@@ -1,8 +1,10 @@
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// app/demo/page.tsx
+
+export const runtime = 'nodejs';        // Prisma requires Node runtime (not Edge)
+export const dynamic = 'force-dynamic'; // disable static optimization
+export const revalidate = 0;            // no caching
 
 import { PrismaClient } from '@prisma/client';
-
 const prisma = new PrismaClient();
 
 export default async function DemoPage() {
@@ -23,3 +25,4 @@ export default async function DemoPage() {
     </div>
   );
 }
+
