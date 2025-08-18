@@ -1,0 +1,14 @@
+DATABASE_URL="file:./dev.db"
+
+DB_PROVIDER=postgresql
+DATABASE_URL="postgresql://<user>:<password>@<host>/<database>?sslmode=require"
+
+
+
+DB_PROVIDER=sqlite
+DATABASE_URL="file:./dev.db"
+
+GITHUB_ID=
+GITHUB_SECRET=
+NEXTAUTH_SECRET=d9ce83a6354dbb5898e6c7fe54f8553f8e96fdcfbfc38c6337223aaec4702b30
+

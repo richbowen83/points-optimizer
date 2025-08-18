@@ -1,0 +1,31 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // directUrl = env("DATABASE_URL_UNPOOLED")
+}generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id      Int      @id @default(autoincrement())
+  email   String   @unique
+  name    String?
+  events  Event[]
+  wallets Wallet[]
+}
+
+model Wallet {
+  id        Int    @id @default(autoincrement())
+  programId String
+  points    Int
+  userId    Int
+  user      User   @relation(fields: [userId], references: [id])
+}
+
+model Event {
+  id     Int     @id @default(autoincrement())
+  type   String
+  meta   String?
+  userId Int
+  user   User    @relation(fields: [userId], references: [id])
+}
