@@ -1,3 +1,10 @@
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+export default function DemoPage() {
+  return <div>Demo page</div>
+}
+
 export const dynamic = "force-dynamic"
 
 import { PrismaClient } from '@prisma/client'
