@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react'
 import { ROUTES, AWARD_CHART, ProgramId, RouteKey } from '../../data/awardChart'
 
-type WalletLike = { id: string; programId: string; points: number }
+type WalletLike = { id: string | number; programId: string; points: number }
 
 const ORIGINS: string[] = Array.from(new Set(ROUTES.map(r => r.from)))
 const DESTS: string[]   = Array.from(new Set(ROUTES.map(r => r.to)))
@@ -62,7 +62,7 @@ export default function SearchClient({ wallets }: { wallets: WalletLike[] }) {
       <h3>Your balances</h3>
       <ul>
         {wallets.map(w => (
-          <li key={w.id}>{w.programId}: {w.points.toLocaleString()} pts</li>
+          <li key={String(w.id)}>{w.programId}: {w.points.toLocaleString()} pts</li>
         ))}
       </ul>
     </div>
