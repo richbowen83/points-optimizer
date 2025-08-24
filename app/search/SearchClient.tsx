@@ -5,6 +5,9 @@ import { ROUTES, AWARD_CHART, ProgramId, RouteKey } from '../../data/awardChart'
 
 type WalletLike = { id: string; programId: string; points: number }
 
+const ORIGINS: string[] = Array.from(new Set(ROUTES.map(r => r.from)))
+const DESTS: string[]   = Array.from(new Set(ROUTES.map(r => r.to)))
+
 function bestOption(wallets: WalletLike[], from: string, to: string) {
   const key = `${from}-${to}` as RouteKey
   const chart = AWARD_CHART[key]
@@ -24,8 +27,8 @@ function bestOption(wallets: WalletLike[], from: string, to: string) {
 }
 
 export default function SearchClient({ wallets }: { wallets: WalletLike[] }) {
-  const [from, setFrom] = useState(ROUTES[0].from)
-  const [to, setTo] = useState(ROUTES[0].to)
+  const [from, setFrom] = useState<string>(ORIGINS[0] ?? '')
+  const [to, setTo]     = useState<string>(DESTS[0] ?? '')
   const result = useMemo(() => bestOption(wallets, from, to), [wallets, from, to])
 
   return (
@@ -35,12 +38,12 @@ export default function SearchClient({ wallets }: { wallets: WalletLike[] }) {
       <div style={{ display: 'flex', gap: 8, margin: '12px 0' }}>
         <label>From:&nbsp;
           <select value={from} onChange={(e) => setFrom(e.target.value)}>
-            {Array.from(new Set(ROUTES.map(r => r.from))).map(f => <option key={f} value={f}>{f}</option>)}
+            {ORIGINS.map(f => <option key={f} value={f}>{f}</option>)}
           </select>
         </label>
         <label>To:&nbsp;
           <select value={to} onChange={(e) => setTo(e.target.value)}>
-            {Array.from(new Set(ROUTES.map(r => r.to))).map(t => <option key={t} value={t}>{t}</option>)}
+            {DESTS.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
         </label>
       </div>
