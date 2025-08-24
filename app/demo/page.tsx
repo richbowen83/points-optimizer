@@ -19,7 +19,7 @@ export default async function DemoPage() {
   const { user, wallets, total } = await getData()
 
   return (
-    <div style={{ maxWidth: 820, margin: '2rem auto', fontFamily: 'system-ui, sans-serif' }}>
+    <div style={{ maxWidth: 780, margin: '2rem auto', fontFamily: 'system-ui, sans-serif' }}>
       <h1 style={{ fontSize: 40, margin: '0 0 8px' }}>Demo Data</h1>
       <p style={{ color: '#555', marginTop: 0 }}>
         Seeded wallets for <code>{user?.email ?? '—'}</code>
@@ -34,7 +34,7 @@ export default async function DemoPage() {
               alignItems: 'center',
               justifyContent: 'space-between',
               padding: '12px 16px',
-              borderBottom: '1px solid #eee'
+              borderBottom: '1px solid #eee',
             }}
           >
             <span style={{ textTransform: 'none' }}>{w.programId}</span>
@@ -45,12 +45,12 @@ export default async function DemoPage() {
                 <button
                   type="submit"
                   style={{
-                    color: '#b42318',
-                    background: '#fff',
+                    color: 'crimson',
+                    background: 'transparent',
                     border: '1px solid #eee',
                     borderRadius: 8,
                     padding: '6px 10px',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
                   }}
                 >
                   Remove
@@ -59,70 +59,78 @@ export default async function DemoPage() {
             </div>
           </div>
         ))}
-        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 16px', background: '#fafafa' }}>
-          <span style={{ fontWeight: 600 }}>Total</span>
-          <strong>{total.toLocaleString()} pts</strong>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            padding: '12px 16px',
+            background: '#fafafa',
+            fontWeight: 600,
+          }}
+        >
+          <span>Total</span>
+          <span>{total.toLocaleString()} pts</span>
         </div>
       </div>
 
-      {/* Add Wallet */}
       <form
         action={addWallet}
         method="post"
-        style={{
-          marginTop: 20,
-          display: 'grid',
-          gap: 12,
-          gridTemplateColumns: 'minmax(220px, 1fr) minmax(200px, 1fr) auto',
-          alignItems: 'center'
-        }}
+        style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 18, alignItems: 'center' }}
       >
-        <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <span style={{ fontSize: 13, color: '#555' }}>Program ID</span>
+        <div style={{ flex: '1 1 380px' }}>
+          <label style={{ fontSize: 14, color: '#555' }}>Program ID</label>
           <input
             name="program"
-            placeholder="e.g. amex_mr, chase_ur"
+            placeholder="e.g. amex_mr, chase_ur, alaska, delta, southwest"
             required
+            pattern="^[a-z_]+$"
+            title="Use lowercase letters and underscores (e.g. amex_mr)"
             style={{
-              padding: '10px 12px',
+              width: '100%',
+              marginTop: 6,
+              padding: 10,
               border: '1px solid #ddd',
               borderRadius: 8,
-              outline: 'none'
             }}
           />
-        </label>
-
-        <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <span style={{ fontSize: 13, color: '#555' }}>Points</span>
+        </div>
+        <div style={{ flex: '1 1 220px' }}>
+          <label style={{ fontSize: 14, color: '#555' }}>Points</label>
           <input
             name="points"
-            inputMode="numeric"
-            pattern="[0-9, ]*"
             placeholder="e.g. 50,000"
+            inputMode="numeric"
+            pattern="^\\d{1,3}(,\\d{3})*$|^\\d+$"
+            title="Enter a positive number"
             required
             style={{
-              padding: '10px 12px',
+              width: '100%',
+              marginTop: 6,
+              padding: 10,
               border: '1px solid #ddd',
               borderRadius: 8,
-              outline: 'none'
             }}
           />
-        </label>
-
-        <button
-          type="submit"
-          style={{
-            height: 44,
-            padding: '0 16px',
-            borderRadius: 8,
-            border: '1px solid #111',
-            background: '#111',
-            color: '#fff',
-            cursor: 'pointer'
-          }}
-        >
-          Add / Update
-        </button>
+        </div>
+        <div>
+          <label style={{ visibility: 'hidden' }}>Add</label>
+          <button
+            type="submit"
+            style={{
+              display: 'block',
+              marginTop: 6,
+              padding: '10px 14px',
+              borderRadius: 8,
+              border: '1px solid #222',
+              background: '#111',
+              color: 'white',
+              cursor: 'pointer',
+            }}
+          >
+            Add / Update
+          </button>
+        </div>
       </form>
     </div>
   )

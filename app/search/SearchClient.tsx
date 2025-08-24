@@ -1,50 +1,36 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { ROUTES, AWARD_CHART, ProgramId, getChart } from '../../data/awardChart'
+import { ROUTES, AWARD_CHART, type ProgramId } from '../../data/awardChart'
 
 type WalletLike = { id: string | number; programId: string; points: number }
 
+// derive dropdown lists
 const ORIGINS: string[] = Array.from(new Set(ROUTES.map(r => r.from)))
 const DESTS: string[]   = Array.from(new Set(ROUTES.map(r => r.to)))
 
-const niceProgram: Record<string, string> = {
+const PRETTY: Record<ProgramId, string> = {
   alaska: 'Alaska',
   amex_mr: 'Amex MR',
   chase_ur: 'Chase UR',
   delta: 'Delta',
-  southwest: 'Southwest',
-}
+} as const
 
-const brandPill: Record<string, string> = {
-  alaska: '#0a65a1',
-  amex_mr: '#3450a1',
-  chase_ur: '#186f3d',
-  delta: '#b42318',
-  southwest: '#5b5b5b',
-}
-
-function Pill({ program, children }: { program: string; children: React.ReactNode }) {
-  const bg = brandPill[program] ?? '#777'
-  return (
-    <span
-      style={{
-        display:'inline-block',
-        fontSize:12,
-        color:'#fff',
-        background:bg,
-        padding:'3px 8px',
-        borderRadius:999,
-      }}
-    >
-      {children}
-    </span>
-  )
+function prettyProgram(p: ProgramId) {
+  return PRETTY[p] ?? p
 }
 
 function bestOption(wallets: WalletLike[], from: string, to: string) {
-  const chart = getChart(from, to)
-  if (!chart) return { program: null as ProgramId | null, cost: null as number | null, canBook: false }
+  const key = `${from}-${to}`
+  const revKey = `${to}-${from}`
+
+  // try forward, then reverse chart
+  const chart = (AWARD_CHART as any)[key] || (AWARD_CHART as any)[revKey] || null
+  const reversed = !((AWARD_CHART as any)[key]) && !!((AWARD_CHART as any)[revKey])
+
+  if (!chart) {
+    return { program: null as ProgramId | null, cost: null as number | null, canBook: false, reversed: false }
+  }
 
   let best: { program: ProgramId | null; cost: number | null; canBook: boolean } =
     { program: null, cost: null, canBook: false }
@@ -56,27 +42,41 @@ function bestOption(wallets: WalletLike[], from: string, to: string) {
       best = { program, cost, canBook }
     }
   }
-  return best
+
+  return { ...best, reversed }
 }
 
 export default function SearchClient({ wallets }: { wallets: WalletLike[] }) {
   const [from, setFrom] = useState<string>(ORIGINS[0] ?? '')
   const [to, setTo]     = useState<string>(DESTS[0] ?? '')
+
   const result = useMemo(() => bestOption(wallets, from, to), [wallets, from, to])
 
-  const swap = () => { setFrom(to); setTo(from) }
+  // for the balances card
+  const bestProg = result.program
+  const balanceRows = useMemo(() => {
+    return (['alaska','amex_mr','chase_ur','delta'] as ProgramId[]).map((pid) => {
+      const w = wallets.find(x => x.programId === pid)
+      return {
+        pid,
+        points: w?.points ?? 0,
+        isBest: bestProg === pid,
+      }
+    })
+  }, [wallets, bestProg])
 
-  const chart = getChart(from, to)
-  const cheapestLabel = result.program ? (niceProgram[result.program] ?? result.program) : null
+  const handleSwap = () => {
+    // safe + simple: swap current state values
+    setFrom(to)
+    setTo(from)
+  }
 
   return (
-    <div style={{ maxWidth: 820, margin: '2rem auto', fontFamily: 'system-ui, sans-serif' }}>
-      <h1 style={{ fontSize: 36, margin: 0 }}>Award Finder (mock)</h1>
-      <p style={{ color:'#666', marginTop: 8 }}>
-        Pick a route and we’ll compare your balances to the cheapest chart price.
-      </p>
+    <div style={{ maxWidth: 860, margin: '2rem auto', fontFamily: 'system-ui, sans-serif' }}>
+      <h1 style={{ fontSize: 36, margin: '0 0 8px' }}>Award Finder (mock)</h1>
+      <p style={{ marginTop: 0, color: '#666' }}>Pick a route and we’ll compare your balances to the cheapest chart price.</p>
 
-      <div style={{ display:'flex', gap: 8, alignItems:'center', margin: '12px 0 16px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '12px 0 16px' }}>
         <label>From&nbsp;
           <select value={from} onChange={(e) => setFrom(e.target.value)}>
             {ORIGINS.map(f => <option key={f} value={f}>{f}</option>)}
@@ -84,11 +84,10 @@ export default function SearchClient({ wallets }: { wallets: WalletLike[] }) {
         </label>
 
         <button
-          type="button"
-          onClick={swap}
-          aria-label="Swap"
-          title="Swap"
-          style={{ padding:'6px 8px', border:'1px solid #ddd', background:'#fff', borderRadius:8, cursor:'pointer' }}
+          aria-label="Swap origin and destination"
+          title="Swap origin and destination"
+          onClick={handleSwap}
+          style={{ padding:'6px 8px', border:'1px solid #ddd', borderRadius:6, background:'#fff', cursor:'pointer' }}
         >
           ⇄
         </button>
@@ -100,46 +99,75 @@ export default function SearchClient({ wallets }: { wallets: WalletLike[] }) {
         </label>
       </div>
 
-      {/* Cheapest card */}
-      <div style={{ border:'1px solid #eee', borderRadius:12, padding:'14px 16px', marginBottom: 16, background:'#fbfbfb' }}>
-        {!chart ? (
-          <div style={{ color:'#b42318' }}>No chart data for this route.</div>
-        ) : (
-          <>
-            <div>
-              Cheapest chart price:{' '}
-              <strong>{result.cost?.toLocaleString() ?? '—'}</strong>{' '}
-              {result.program && (
-                <span style={{ marginLeft: 8 }}>
-                  via <Pill program={result.program}>{cheapestLabel}</Pill>
-                </span>
-              )}
-            </div>
-            <div style={{ marginTop:6, color: result.canBook ? '#0d7a33' : '#b42318' }}>
-              {result.canBook ? 'You have enough points to book.' : 'Not enough points in that program.'}
-            </div>
-          </>
-        )}
-      </div>
+      {result.cost === null ? (
+        <div style={{ background:'#fff8e1', border:'1px solid #ffe08a', padding:12, borderRadius:10 }}>
+          We don’t have chart data for {from} → {to} yet. Try one of: LAX→LHR, JFK→NRT, SFO→CDG.
+        </div>
+      ) : (
+        <div style={{ background:'#f6f8ff', border:'1px solid #dfe3ff', padding:12, borderRadius:10 }}>
+          <div>
+            Cheapest chart price: <b>{result.cost!.toLocaleString()}</b> via{' '}
+            <span
+              style={{
+                display:'inline-block',
+                padding:'2px 8px',
+                borderRadius:999,
+                border:'1px solid #d6d9ff',
+                background:'#eef1ff',
+                fontSize:12
+              }}
+            >
+              {prettyProgram(result.program!)}
+            </span>
+            {result.reversed && (
+              <span
+                style={{
+                  display:'inline-block',
+                  marginLeft:8,
+                  padding:'2px 8px',
+                  borderRadius:999,
+                  border:'1px solid #ffd699',
+                  background:'#fff3d9',
+                  fontSize:12
+                }}
+              >
+                reverse chart
+              </span>
+            )}
+          </div>
+          <div style={{ color: result.canBook ? 'green' : 'crimson', marginTop:6 }}>
+            {result.canBook ? 'You have enough points to book.' : 'Not enough points in that program.'}
+          </div>
+        </div>
+      )}
 
-      {/* Balances list */}
-      <div style={{ border:'1px solid #eee', borderRadius:12, overflow:'hidden' }}>
-        <div style={{ padding:'10px 14px', borderBottom:'1px solid #eee', background:'#fafafa', fontWeight:600 }}>
+      <div style={{ marginTop:18, border:'1px solid #eee', borderRadius:12, overflow:'hidden' }}>
+        <div style={{ padding:'10px 12px', background:'#fafafa', borderBottom:'1px solid #eee', fontWeight:600 }}>
           Your balances
         </div>
-        {wallets.map((w) => {
-          const isBest = result.program === w.programId
-          return (
-            <div key={String(w.id)} style={{ display:'flex', justifyContent:'space-between', padding:'12px 16px', borderBottom:'1px solid #eee' }}>
-              <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                <Pill program={w.programId}>{niceProgram[w.programId] ?? w.programId}</Pill>
-              </div>
-              <div style={{ fontWeight: isBest ? 700 : 500, color: isBest ? '#0d7a33' : 'inherit' }}>
-                {w.points.toLocaleString()} pts {isBest ? '• best' : ''}
-              </div>
+        {balanceRows.map(row => (
+          <div key={row.pid} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'10px 12px', borderBottom:'1px solid #eee' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+              <span
+                style={{
+                  display:'inline-block',
+                  padding:'2px 8px',
+                  borderRadius:999,
+                  border:'1px solid #ddd',
+                  background:'#f7f7f7',
+                  fontSize:12
+                }}
+              >
+                {prettyProgram(row.pid as ProgramId)}
+              </span>
             </div>
-          )
-        })}
+            <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+              <span style={{ color: row.isBest ? 'green' : '#111', fontWeight: row.isBest ? 700 : 500 }}>
+                {row.points.toLocaleString()} pts{row.isBest ? ' • best' : ''}
+              </span>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   )
