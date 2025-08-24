@@ -34,7 +34,7 @@ export default async function DemoPage() {
               alignItems: 'center',
               justifyContent: 'space-between',
               padding: '12px 16px',
-              borderBottom: '1px solid #eee',
+              borderBottom: '1px solid #eee'
             }}
           >
             <span style={{ textTransform: 'none' }}>{w.programId}</span>
@@ -45,12 +45,12 @@ export default async function DemoPage() {
                 <button
                   type="submit"
                   style={{
-                    color: 'crimson',
-                    background: 'transparent',
-                    border: '1px solid #eee',
-                    borderRadius: 6,
-                    padding: '4px 8px',
+                    padding: '8px 14px',
+                    borderRadius: 8,
                     cursor: 'pointer',
+                    background: '#fff',
+                    color: '#b00020',
+                    border: '1px solid #ffd6de'
                   }}
                 >
                   Remove
@@ -64,7 +64,7 @@ export default async function DemoPage() {
             display: 'flex',
             justifyContent: 'space-between',
             padding: '12px 16px',
-            background: '#fafafa',
+            background: '#fafafa'
           }}
         >
           <span>Total</span>
@@ -73,25 +73,47 @@ export default async function DemoPage() {
       </div>
 
       {/* Add Wallet form */}
-      <form action={addWallet} style={{ marginTop: 24, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+      <form
+        action={addWallet}
+        style={{
+          marginTop: 24,
+          display: 'flex',
+          gap: 8,
+          flexWrap: 'wrap'
+        }}
+      >
         <input
           name="program"
           placeholder="program id (e.g. amex_mr)"
-          required
-          style={{ flex: '1 1 220px', padding: 8, border: '1px solid #ddd', borderRadius: 6 }}
+          style={{
+            flex: '1 1 220px',
+            padding: 8,
+            border: '1px solid #ddd',
+            borderRadius: 8
+          }}
         />
         <input
           name="points"
-          type="number"
-          min={0}
-          step={1}
           placeholder="points (e.g. 50000)"
-          required
-          style={{ flex: '1 1 180px', padding: 8, border: '1px solid #ddd', borderRadius: 6 }}
+          type="number"
+          style={{
+            flex: '1 1 160px',
+            padding: 8,
+            border: '1px solid #ddd',
+            borderRadius: 8
+          }}
         />
         <button
           type="submit"
-          style={{ padding: '8px 16px', borderRadius: 6, background: '#222', color: 'white', cursor: 'pointer' }}
+          style={{
+            padding: '8px 16px',
+            background: 'black',
+            color: 'white',
+            border: '1px solid black',
+            borderRadius: 8,
+            cursor: 'pointer',
+            fontWeight: 600
+          }}
         >
           Save
         </button>
