@@ -1,26 +1,43 @@
-import { PrismaClient } from '@prisma/client'
-const prisma = new PrismaClient()
+// prisma/seed.js
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+const DEMO_EMAIL = 'demo@points.local';
+
+// canonical demo balances — edit as you like
+const WALLET_SEED = [
+  { programId: 'alaska',   points: 45000 },
+  { programId: 'amex_mr',  points: 120000 },
+  { programId: 'chase_ur', points: 30000 },
+  { programId: 'delta',    points: 25000 },
+];
 
 async function main() {
+  // 1) ensure the demo user exists (idempotent)
   const user = await prisma.user.upsert({
-    where: { email: 'demo@points.local' },
+    where:  { email: DEMO_EMAIL },
     update: {},
-    create: { email: 'demo@points.local', name: 'Demo User' }
-  })
+    create: { email: DEMO_EMAIL, name: 'Demo User' },
+  });
 
-  const wallets = [
-    { programId: 'amex_mr', points: 120000 },
-    { programId: 'chase_ur', points: 30000 },
-    { programId: 'alaska', points: 45000 },
-  ]
+  // 2) reset that user’s wallets to the canonical seed
+  //    (this keeps the seed idempotent and removes prior duplicates)
+  await prisma.wallet.deleteMany({ where: { userId: user.id } });
 
-  for (const w of wallets) {
-    await prisma.wallet.create({ data: { userId: user.id, ...w } })
-  }
+  await prisma.wallet.createMany({
+    data: WALLET_SEED.map(w => ({ ...w, userId: user.id })),
+    // if you keep deleteMany above, skipDuplicates is irrelevant but harmless
+    skipDuplicates: true,
+  });
 
-  await prisma.event.create({ data: { userId: user.id, type: 'seed_complete', meta: JSON.stringify({ note: "Demo data loaded" }) } })
-
-  console.log('Seeded demo user:', user.email)
+  console.log(`✅ Seeded ${WALLET_SEED.length} wallets for ${user.email}`);
 }
 
-main().then(() => process.exit(0)).catch((e) => { console.error(e); process.exit(1) })
+main()
+  .catch(err => {
+    console.error('❌ Seed failed:', err);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
