@@ -40,22 +40,32 @@ export default async function DemoPage() {
             <span style={{ textTransform: 'none' }}>{w.programId}</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <strong>{w.points.toLocaleString()} pts</strong>
-              <form action={deleteWallet}>
+              <form action={deleteWallet} method="post">
                 <input type="hidden" name="program" value={w.programId} />
-                <button type="submit" style={{ color: 'crimson', background: 'transparent', border: '1px solid #eee', borderRadius: 6, padding: '4px 8px', cursor: 'pointer' }}>
+                <button
+                  type="submit"
+                  style={{
+                    color: 'crimson',
+                    background: 'transparent',
+                    border: '1px solid #eee',
+                    borderRadius: 6,
+                    padding: '4px 8px',
+                    cursor: 'pointer'
+                  }}
+                >
                   Remove
                 </button>
               </form>
             </div>
           </div>
         ))}
-        <div style={{ display:'flex', justifyContent:'space-between', padding:'12px 16px', background:'#fafafa' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 16px', background: '#fafafa' }}>
           <span>Total</span>
           <strong>{total.toLocaleString()} pts</strong>
         </div>
       </div>
 
-      <form action={addWallet} style={{ marginTop: 24, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+      <form action={addWallet} method="post" style={{ marginTop: 24, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
         <input
           name="program"
           placeholder="program id (e.g. amex_mr)"
@@ -64,13 +74,20 @@ export default async function DemoPage() {
         <input
           name="points"
           type="number"
-          inputMode="numeric"
+          min={0}
+          step={100}
           placeholder="points (e.g. 50000)"
-          style={{ flex: '1 1 180px', padding: 8, border: '1px solid #ddd', borderRadius: 6 }}
+          style={{ width: 180, padding: 8, border: '1px solid #ddd', borderRadius: 6 }}
         />
         <button
           type="submit"
-          style={{ padding: '8px 12px', borderRadius: 6, border: '1px solid #ddd', background: '#f5f5f5', cursor: 'pointer' }}
+          style={{
+            padding: '8px 12px',
+            border: '1px solid #ddd',
+            borderRadius: 6,
+            cursor: 'pointer',
+            background: '#f3f3f3'
+          }}
         >
           Save
         </button>
