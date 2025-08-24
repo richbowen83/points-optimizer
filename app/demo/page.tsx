@@ -19,9 +19,9 @@ export default async function DemoPage() {
   const { user, wallets, total } = await getData()
 
   return (
-    <div style={{ maxWidth: 780, margin: '2rem auto', fontFamily: 'system-ui, sans-serif' }}>
-      <h1>Demo Data</h1>
-      <p style={{ color: '#555' }}>
+    <div style={{ maxWidth: 820, margin: '2rem auto', fontFamily: 'system-ui, sans-serif' }}>
+      <h1 style={{ fontSize: 40, margin: '0 0 8px' }}>Demo Data</h1>
+      <p style={{ color: '#555', marginTop: 0 }}>
         Seeded wallets for <code>{user?.email ?? '—'}</code>
       </p>
 
@@ -45,12 +45,12 @@ export default async function DemoPage() {
                 <button
                   type="submit"
                   style={{
-                    padding: '8px 14px',
-                    borderRadius: 8,
-                    cursor: 'pointer',
+                    color: '#b42318',
                     background: '#fff',
-                    color: '#b00020',
-                    border: '1px solid #ffd6de'
+                    border: '1px solid #eee',
+                    borderRadius: 8,
+                    padding: '6px 10px',
+                    cursor: 'pointer'
                   }}
                 >
                   Remove
@@ -59,63 +59,69 @@ export default async function DemoPage() {
             </div>
           </div>
         ))}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            padding: '12px 16px',
-            background: '#fafafa'
-          }}
-        >
-          <span>Total</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 16px', background: '#fafafa' }}>
+          <span style={{ fontWeight: 600 }}>Total</span>
           <strong>{total.toLocaleString()} pts</strong>
         </div>
       </div>
 
-      {/* Add Wallet form */}
+      {/* Add Wallet */}
       <form
         action={addWallet}
+        method="post"
         style={{
-          marginTop: 24,
-          display: 'flex',
-          gap: 8,
-          flexWrap: 'wrap'
+          marginTop: 20,
+          display: 'grid',
+          gap: 12,
+          gridTemplateColumns: 'minmax(220px, 1fr) minmax(200px, 1fr) auto',
+          alignItems: 'center'
         }}
       >
-        <input
-          name="program"
-          placeholder="program id (e.g. amex_mr)"
-          style={{
-            flex: '1 1 220px',
-            padding: 8,
-            border: '1px solid #ddd',
-            borderRadius: 8
-          }}
-        />
-        <input
-          name="points"
-          placeholder="points (e.g. 50000)"
-          type="number"
-          style={{
-            flex: '1 1 160px',
-            padding: 8,
-            border: '1px solid #ddd',
-            borderRadius: 8
-          }}
-        />
+        <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <span style={{ fontSize: 13, color: '#555' }}>Program ID</span>
+          <input
+            name="program"
+            placeholder="e.g. amex_mr, chase_ur"
+            required
+            style={{
+              padding: '10px 12px',
+              border: '1px solid #ddd',
+              borderRadius: 8,
+              outline: 'none'
+            }}
+          />
+        </label>
+
+        <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <span style={{ fontSize: 13, color: '#555' }}>Points</span>
+          <input
+            name="points"
+            inputMode="numeric"
+            pattern="[0-9, ]*"
+            placeholder="e.g. 50,000"
+            required
+            style={{
+              padding: '10px 12px',
+              border: '1px solid #ddd',
+              borderRadius: 8,
+              outline: 'none'
+            }}
+          />
+        </label>
+
         <button
           type="submit"
           style={{
-            padding: '8px 16px',
-            background: 'black',
-            color: 'white',
-            border: '1px solid black',
+            height: 44,
+            padding: '0 16px',
             borderRadius: 8,
-            cursor: 'pointer',
-            fontWeight: 600
+            border: '1px solid #111',
+            background: '#111',
+            color: '#fff',
+            cursor: 'pointer'
           }}
         >
-          Save
+          Add / Update
         </button>
       </form>
     </div>

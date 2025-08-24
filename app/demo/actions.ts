@@ -8,15 +8,24 @@ function sanitizeProgram(input: FormDataEntryValue | null): string {
   return String(input ?? '').trim().toLowerCase().replace(/\s+/g, '_')
 }
 
+function clampPoints(n: number) {
+  if (!Number.isFinite(n)) return 0
+  if (n < 0) return 0
+  if (n > 10_000_000) return 10_000_000
+  return Math.floor(n)
+}
+
 export async function addWallet(formData: FormData) {
+  // normalize inputs
   const program = sanitizeProgram(formData.get('program'))
-  const pointsRaw = String(formData.get('points') ?? '').trim()
-  const points = Number(pointsRaw)
-  if (!program || !Number.isFinite(points) || points < 0) return
+  const pointsRaw = String(formData.get('points') ?? '').replace(/[,_\s]/g, '')
+  const points = clampPoints(Number(pointsRaw))
+  if (!program) return
 
   const user = await prisma.user.findFirst({ where: { email: 'demo@points.local' } })
   if (!user) return
 
+  // upsert by (userId, programId)
   const existing = await prisma.wallet.findFirst({
     where: { userId: user.id, programId: program },
     select: { id: true },
@@ -39,5 +48,6 @@ export async function deleteWallet(formData: FormData) {
   if (!user) return
 
   await prisma.wallet.deleteMany({ where: { userId: user.id, programId: program } })
+
   revalidatePath('/demo')
 }
