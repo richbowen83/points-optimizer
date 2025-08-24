@@ -6,5 +6,5 @@ export default function Nav() {
       <a href="/demo" style={{ textDecoration: 'none' }}>Demo</a>
       <a href="/search" style={{ textDecoration: 'none' }}>Search</a>
     </nav>
-  )
+  );
 }
