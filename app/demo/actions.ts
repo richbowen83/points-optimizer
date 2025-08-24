@@ -11,11 +11,21 @@ export async function addWallet(formData: FormData) {
   const user = await prisma.user.findFirst({ where: { email: 'demo@points.local' } })
   if (!user) return
 
-  await prisma.wallet.upsert({
-    where: { userId_programId: { userId: user.id, programId: program } },
-    update: { points },
-    create: { userId: user.id, programId: program, points },
+  const existing = await prisma.wallet.findFirst({
+    where: { userId: user.id, programId: program },
+    select: { id: true },
   })
+
+  if (existing) {
+    await prisma.wallet.update({
+      where: { id: existing.id },
+      data: { points },
+    })
+  } else {
+    await prisma.wallet.create({
+      data: { userId: user.id, programId: program, points },
+    })
+  }
 
   revalidatePath('/demo')
 }
