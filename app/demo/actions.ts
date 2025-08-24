@@ -29,3 +29,18 @@ export async function addWallet(formData: FormData) {
 
   revalidatePath('/demo')
 }
+
+export async function deleteWallet(formData: FormData) {
+  const program = String(formData.get('program') ?? '').trim().toLowerCase()
+  if (!program) return
+
+  const user = await prisma.user.findFirst({ where: { email: 'demo@points.local' } })
+  if (!user) return
+
+  // Remove any wallet rows for this user/program (safe even if none exist)
+  await prisma.wallet.deleteMany({
+    where: { userId: user.id, programId: program },
+  })
+
+  revalidatePath('/demo')
+}

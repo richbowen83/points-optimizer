@@ -1,6 +1,6 @@
 // app/demo/page.tsx
+import { addWallet, deleteWallet } from './actions'
 import { prisma } from '../../lib/prisma'
-import { addWallet } from './actions'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -27,9 +27,26 @@ export default async function DemoPage() {
 
       <div style={{ border: '1px solid #eee', borderRadius: 12, overflow: 'hidden', marginTop: 12 }}>
         {wallets.map((w) => (
-          <div key={w.id} style={{ display:'flex', justifyContent:'space-between', padding:'12px 16px', borderBottom:'1px solid #eee' }}>
-            <span>{w.programId}</span>
-            <strong>{w.points.toLocaleString()} pts</strong>
+          <div
+            key={w.id}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '12px 16px',
+              borderBottom: '1px solid #eee'
+            }}
+          >
+            <span style={{ textTransform: 'none' }}>{w.programId}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <strong>{w.points.toLocaleString()} pts</strong>
+              <form action={deleteWallet}>
+                <input type="hidden" name="program" value={w.programId} />
+                <button type="submit" style={{ color: 'crimson', background: 'transparent', border: '1px solid #eee', borderRadius: 6, padding: '4px 8px', cursor: 'pointer' }}>
+                  Remove
+                </button>
+              </form>
+            </div>
           </div>
         ))}
         <div style={{ display:'flex', justifyContent:'space-between', padding:'12px 16px', background:'#fafafa' }}>
@@ -38,10 +55,25 @@ export default async function DemoPage() {
         </div>
       </div>
 
-      <form action={addWallet} style={{ marginTop: 24, display:'flex', gap: 8 }}>
-        <input name="program" placeholder="program id e.g. amex_mr" />
-        <input name="points" placeholder="points e.g. 50000" />
-        <button type="submit">Save</button>
+      <form action={addWallet} style={{ marginTop: 24, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <input
+          name="program"
+          placeholder="program id (e.g. amex_mr)"
+          style={{ flex: '1 1 220px', padding: 8, border: '1px solid #ddd', borderRadius: 6 }}
+        />
+        <input
+          name="points"
+          type="number"
+          inputMode="numeric"
+          placeholder="points (e.g. 50000)"
+          style={{ flex: '1 1 180px', padding: 8, border: '1px solid #ddd', borderRadius: 6 }}
+        />
+        <button
+          type="submit"
+          style={{ padding: '8px 12px', borderRadius: 6, border: '1px solid #ddd', background: '#f5f5f5', cursor: 'pointer' }}
+        >
+          Save
+        </button>
       </form>
     </div>
   )
