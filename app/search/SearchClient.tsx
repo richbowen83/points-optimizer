@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import { ROUTES, AWARD_CHART, type ProgramId } from '../../data/awardChart'
+import { ProgramLogo } from '../components/ProgramLogo'  // we'll add this in step B
 
 type WalletLike = { id: string | number; programId: string; points: number }
 
@@ -60,14 +61,7 @@ export default function SearchClient({ wallets }: { wallets: WalletLike[] }) {
 
   return (
     <div style={{ maxWidth: 900, margin: '2rem auto', fontFamily: 'system-ui, sans-serif' }}>
-      <nav style={{display:'flex', gap:16, marginBottom:8}}>
-        <a href="/" style={{textDecoration:'none'}}>Home</a>
-        <a href="/demo" style={{textDecoration:'none'}}>Demo</a>
-        <a href="/search" style={{textDecoration:'none', color:'#5b2dff'}}>Search</a>
-      </nav>
-
-      <p style={{color:'#555'}}>Using wallets for <code>demo@points.local</code></p>
-      <h1 style={{fontSize:40, margin:'8px 0 12px'}}>Award Finder (mock)</h1>
+      <h1 style={{fontSize:40, margin:'0 0 12px'}}>Award Finder (mock)</h1>
       <p style={{color:'#555', marginTop:0}}>
         Pick a route and we’ll compare your balances to the cheapest chart price.
       </p>
@@ -93,7 +87,6 @@ export default function SearchClient({ wallets }: { wallets: WalletLike[] }) {
         </button>
       </div>
 
-      {/* Result card */}
       <div style={{
         border:'1px solid #eee', borderRadius:12, padding:'14px 16px', margin:'12px 0',
         background: result.cost === null ? '#fffcef' : '#f7fbff'
@@ -128,21 +121,18 @@ export default function SearchClient({ wallets }: { wallets: WalletLike[] }) {
         )}
       </div>
 
-      {/* Wallet table */}
       <div style={{border:'1px solid #eee', borderRadius:12, overflow:'hidden', marginTop:18}}>
         <div style={{background:'#fafafa', padding:'10px 14px', fontWeight:700}}>Your balances</div>
-        {['alaska','amex_mr','chase_ur','delta','southwest'].map((p) => {
+        {(['alaska','amex_mr','chase_ur','delta','southwest'] as ProgramId[]).map((p) => {
           const w = (wallets ?? []).find(x => x.programId === p)
           const isBest = !!result.program && result.program === p
-          const lineColor = p === 'alaska' ? 'blue'
-                          : p === 'amex_mr' ? 'indigo'
-                          : p === 'chase_ur' ? 'green'
-                          : p === 'delta' ? 'red'
-                          : 'gray'
           return (
             <div key={p} style={{display:'flex', justifyContent:'space-between', alignItems:'center',
               padding:'12px 16px', borderTop:'1px solid #eee', background: isBest ? '#f1fbf5' : 'white'}}>
-              <Pill label={PRETTY[p as ProgramId]} color={lineColor as any} />
+              <div style={{display:'flex', alignItems:'center', gap:10}}>
+                <ProgramLogo program={p} />
+                <span style={{fontWeight:600}}>{PRETTY[p]}</span>
+              </div>
               <div style={{fontWeight: isBest ? 800 : 500, color: isBest ? '#157347' : '#111'}}>
                 {w ? w.points.toLocaleString() : 0} pts{isBest ? ' • best' : ''}
               </div>
