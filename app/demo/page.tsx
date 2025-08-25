@@ -6,6 +6,29 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
+// pretty labels + logo paths + color accents
+const PRETTY: Record<string, string> = {
+  alaska: 'Alaska',
+  amex_mr: 'Amex MR',
+  chase_ur: 'Chase UR',
+  delta: 'Delta',
+  southwest: 'Southwest',
+}
+const LOGO: Record<string, string> = {
+  alaska: '/logos/alaska.svg',
+  amex_mr: '/logos/amex.svg',
+  chase_ur: '/logos/chase.svg',
+  delta: '/logos/delta.svg',
+  southwest: '/logos/southwest.svg',
+}
+const COLOR: Record<string, string> = {
+  alaska: '#006097',
+  amex_mr: '#016FD0',
+  chase_ur: '#0A2239',
+  delta: '#C8102E',
+  southwest: '#304CB2',
+}
+
 async function getData() {
   const user = await prisma.user.findFirst({ where: { email: 'demo@points.local' } })
   const wallets = user
@@ -19,8 +42,8 @@ export default async function DemoPage() {
   const { user, wallets, total } = await getData()
 
   return (
-    <div style={{ maxWidth: 780, margin: '2rem auto', fontFamily: 'system-ui, sans-serif' }}>
-      <h1 style={{ fontSize: 40, margin: '0 0 8px' }}>Demo Data</h1>
+    <div style={{ maxWidth: 820, margin: '2rem auto', fontFamily: 'system-ui, sans-serif' }}>
+      <h1 style={{ marginBottom: 8 }}>Demo Data</h1>
       <p style={{ color: '#555', marginTop: 0 }}>
         Seeded wallets for <code>{user?.email ?? '—'}</code>
       </p>
@@ -35,11 +58,26 @@ export default async function DemoPage() {
               justifyContent: 'space-between',
               padding: '12px 16px',
               borderBottom: '1px solid #eee',
+              gap: 12,
             }}
           >
-            <span style={{ textTransform: 'none' }}>{w.programId}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <img
+                src={LOGO[w.programId] ?? '/logos/amex.svg'}
+                alt=""
+                width={22}
+                height={22}
+                style={{ display: 'block', opacity: 0.9 }}
+              />
+              <span style={{ textTransform: 'none' }}>
+                {PRETTY[w.programId] ?? w.programId}
+              </span>
+            </div>
+
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <strong>{w.points.toLocaleString()} pts</strong>
+              <strong style={{ color: COLOR[w.programId] ?? '#111', fontWeight: 700 }}>
+                {w.points.toLocaleString()} pts
+              </strong>
               <form action={deleteWallet} method="post">
                 <input type="hidden" name="program" value={w.programId} />
                 <button
@@ -48,8 +86,8 @@ export default async function DemoPage() {
                     color: 'crimson',
                     background: 'transparent',
                     border: '1px solid #eee',
-                    borderRadius: 8,
-                    padding: '6px 10px',
+                    borderRadius: 6,
+                    padding: '4px 8px',
                     cursor: 'pointer',
                   }}
                 >
@@ -59,78 +97,41 @@ export default async function DemoPage() {
             </div>
           </div>
         ))}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            padding: '12px 16px',
-            background: '#fafafa',
-            fontWeight: 600,
-          }}
-        >
+        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 16px', background: '#fafafa' }}>
           <span>Total</span>
-          <span>{total.toLocaleString()} pts</span>
+          <strong>{total.toLocaleString()} pts</strong>
         </div>
       </div>
 
-      <form
-        action={addWallet}
-        method="post"
-        style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 18, alignItems: 'center' }}
-      >
-        <div style={{ flex: '1 1 380px' }}>
-          <label style={{ fontSize: 14, color: '#555' }}>Program ID</label>
-          <input
-            name="program"
-            placeholder="e.g. amex_mr, chase_ur, alaska, delta, southwest"
-            required
-            pattern="^[a-z_]+$"
-            title="Use lowercase letters and underscores (e.g. amex_mr)"
-            style={{
-              width: '100%',
-              marginTop: 6,
-              padding: 10,
-              border: '1px solid #ddd',
-              borderRadius: 8,
-            }}
-          />
-        </div>
-        <div style={{ flex: '1 1 220px' }}>
-          <label style={{ fontSize: 14, color: '#555' }}>Points</label>
-          <input
-            name="points"
-            placeholder="e.g. 50,000"
-            inputMode="numeric"
-            pattern="^\\d{1,3}(,\\d{3})*$|^\\d+$"
-            title="Enter a positive number"
-            required
-            style={{
-              width: '100%',
-              marginTop: 6,
-              padding: 10,
-              border: '1px solid #ddd',
-              borderRadius: 8,
-            }}
-          />
-        </div>
-        <div>
-          <label style={{ visibility: 'hidden' }}>Add</label>
-          <button
-            type="submit"
-            style={{
-              display: 'block',
-              marginTop: 6,
-              padding: '10px 14px',
-              borderRadius: 8,
-              border: '1px solid #222',
-              background: '#111',
-              color: 'white',
-              cursor: 'pointer',
-            }}
-          >
-            Add / Update
-          </button>
-        </div>
+      <form action={addWallet} style={{ marginTop: 24, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <input
+          name="program"
+          placeholder="program id (e.g. amex_mr)"
+          style={{ flex: '1 1 220px', padding: 8, border: '1px solid #ddd', borderRadius: 6 }}
+          required
+        />
+        <input
+          name="points"
+          type="number"
+          min={0}
+          step={1}
+          placeholder="points (e.g. 50000)"
+          style={{ width: 180, padding: 8, border: '1px solid #ddd', borderRadius: 6 }}
+          required
+        />
+        <button
+          type="submit"
+          style={{
+            padding: '8px 12px',
+            borderRadius: 8,
+            border: '1px solid #ddd',
+            background: '#111',
+            color: 'white',
+            cursor: 'pointer',
+          }}
+        >
+          Add / Update Wallet
+        </button>
       </form>
     </div>
   )
